@@ -20,6 +20,12 @@ app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
 
+// Set Handlebars.
+var exphbs = require("express-handlebars");
+
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
+
 // Connect to the Mongo DB
 // If deployed, use the deployed database. Otherwise use the local mongoHeadlines database
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
@@ -34,7 +40,7 @@ console.log("Hello world!");
 
 // Routes
 
-app.get("/scrape", function(req, res) {
+app.get("/", function(req, res) {
     // First, we grab the body of the html with axios
     axios.get("http://www.vox.com/").then(function(response) {
       // Then, we load that into cheerio and save it to $ for a shorthand selector
@@ -56,17 +62,35 @@ app.get("/scrape", function(req, res) {
           .children("a")
           .attr("href");
         
+        console.log(result.headline);
+
         // Create a new Article using the `result` object built from scraping
         db.Articles.create(result)
           .then(function(dbArticle) {
+            
             // View the added result in the console
             console.log(dbArticle);
+
+
+            /*
+            $("#articles").append("<p class='headline' data-id='" + dbArticle._id + "'>" + dbArticle.headline + "<br />" + dbArticle.url + "</p><p class='summary'>" + dbArticle.summary + "</p><button data-id='" + dbArticle._id + "' type='submit' value=''>Save</button>");
+            */
+
+
           })
           .catch(function(err) {
             // If an error occurred, log it
             console.log(err);
           });
       });
+
+      // For each one
+      /*
+      for (var i = 0; i < data.length; i++) {
+        // Display the apropos information on the page
+        $("#articles").append("<p class='headline' data-id='" + data[i]._id + "'>" + data[i].headline + "<br />" + data[i].url + "</p><p class='summary'>" + data[i].summary + "</p><button data-id='" + data[i]._id + "' type='submit' value=''>Save</button>");
+      }
+      */
   
       // Send a message to the client
       res.send("Scrape Complete");
@@ -74,8 +98,8 @@ app.get("/scrape", function(req, res) {
 });
 
 
-
 // Route for getting all Articles from the db
+/*
 app.get("/articles", function(req, res) {
     db.Articles.find({})
       .then(function(dbArticle) {
@@ -85,9 +109,14 @@ app.get("/articles", function(req, res) {
         res.json(err);
       });
 });
+*/
 
 
+// Post an article from Articles to SavedArticles.
 
+// Post a item in Comments and associate it with an item from SavedArticles.
+
+// Delete an item from SavedArticles.
 
 
 // Start the server

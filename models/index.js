@@ -1,4 +1,4 @@
 module.exports = {
-    Articles: require("./articles.js"),
-    SavedArticles: require("./savedarticles.js")
+  Article: require("./Article"),
+  Note: require("./Note")
 };
